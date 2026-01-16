@@ -30,6 +30,14 @@ jobs:
           FROM_SHA=$(gh pr view $PR_NUMBER --repo ${{ github.repository }} --json headRefOid --jq .headRefOid)
           echo "FROM_SHA=$FROM_SHA" >> $GITHUB_OUTPUT
 
+      - name: Validate PR is staging → main
+        run: |
+          if [[ "${{ steps.pr_details.outputs.FROM_REF }}" != "staging" || \
+                "${{ steps.pr_details.outputs.INTO_REF }}" != "main" ]]; then
+            echo "❌ This action only supports merging staging into main."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ steps.pr_details.outputs.INTO_REF }}
